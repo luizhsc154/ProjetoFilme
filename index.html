@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busque seu Filme</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        input {
+            padding: 10px;
+            width: 300px;
+        }
+        button {
+            padding: 10px 15px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .resultado {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Busque seu Filme</h1>
+    
+    <input type="text" id="tituloFilme" placeholder="Digite o nome do filme...">
+    <button onclick="buscarFilme()">Buscar</button>
+
+    <div id="resultado" class="resultado">
+        <h2 id="nomeFilme"></h2>
+        <p><strong>Nota IMDb:</strong> <span id="notaFilme"></span></p>
+        <p><strong>Elenco:</strong> <span id="elencoFilme"></span></p>
+        <p><strong>Prêmios:</strong> <span id="premiosFilme"></span></p>
+    </div>
+
+    <script>
+        function buscarFilme() {
+            let titulo = document.getElementById("tituloFilme").value;
+
+            if (titulo.trim() === "") {
+                alert("Digite um nome de filme válido");
+                return;
+            }
+
+            fetch(`http://localhost:5000/search?title=${encodeURIComponent(titulo)}`)
+                .then(resposta => resposta.json())
+                .then(dados => {
+                    if (dados.error) {
+                        alert("Filme não encontrado");
+                        return;
+                    }
+
+                    document.getElementById("nomeFilme").innerText = dados.title;
+                    document.getElementById("notaFilme").innerText = dados.rating || "N/A";
+                    document.getElementById("elencoFilme").innerText = dados.actors || "N/A";
+                    document.getElementById("premiosFilme").innerText = dados.awards || "N/A";
+
+                    document.getElementById("resultado").style.display = "block";
+                })
+                .catch(erro => console.error("Erro na requisição:", erro));
+        }
+    </script>
+
+</body>
+</html>

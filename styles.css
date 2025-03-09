@@ -1,0 +1,11 @@
+body{
+    background: #cccc;
+}
+    #eu{
+        background: gray;
+        width:25px;
+        height:25px;
+        position:absolute;
+        top:200px;
+        left:250px;
+    }

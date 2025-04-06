@@ -2,7 +2,6 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Busca de Filmes</title>
     <style>
         * {
@@ -14,92 +13,103 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #87CEEB;
-            color: #222;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            text-align: center;
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 20px;
+            background-color: #fff;
+            padding: 25px;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 450px;
             width: 100%;
-            max-width: 400px;
         }
 
         h1 {
-            color: #000000;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            color: #333;
         }
 
         input {
             width: 100%;
             padding: 10px;
             font-size: 16px;
+            margin-bottom: 15px;
             border-radius: 5px;
             border: 1px solid #555;
-            margin-bottom: 10px;
-            text-align: center;
-            height: 40px;
-        }
-
-        input::placeholder {
-            text-align: center;
-            line-height: 40px;
         }
 
         button {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             font-size: 16px;
-            background-color: #7a7a7a;
-            color: #ffffff;
+            background-color: #333;
+            color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
 
         button:hover {
-            background-color: #616161;
+            background-color: #555;
         }
 
         #resultado {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #ffffff;
-            color: #222;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            display: none;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        #resultado h2 {
+            margin-bottom: 10px;
+            color: #000;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Busque o filme</h1> 
-        <input type="text" id="title" placeholder="Digite o título do filme"> 
-        <button id="buscar">Procurar</button> 
+        <h1>Busca de Filmes</h1>
+        <input type="text" id="title" placeholder="Digite o nome do filme">
+        <button onclick="buscarFilme()">Buscar</button>
         <div id="resultado"></div>
     </div>
 
     <script>
-        document.getElementById("buscar").addEventListener("click", function() {
-            var title = document.getElementById("title").value.trim();
-            var resultado = document.getElementById("resultado");
+      function buscarFilme() {
+         const title = document.getElementById('title').value.trim();
+         const resultado = document.getElementById('resultado');
 
-            if (title === "") {
-                resultado.style.display = "block";
-                resultado.innerHTML = "Por favor, digite um título de filme."; 
-            } else {
-                resultado.style.display = "block";
-                resultado.innerHTML = "Você digitou: <strong>" + title + "</strong>";
-            }
-        });
+         if (title === "") {
+             resultado.innerHTML = "<p>Por favor, digite o nome do filme.</p>";
+             return;
+         }
+
+         resultado.innerHTML = "<p>Carregando...</p>";
+
+         fetch('/buscar-filme?title=' + encodeURIComponent(title))
+         .then(response => response.json())
+         .then(data => {
+             resultado.innerHTML = ''; // Limpa resultados anteriores
+
+             if (data.error) {
+                 resultado.innerHTML = `<p>${data.error}</p>`;
+             } else {
+                 resultado.innerHTML = `
+                    <h2>${data.title}</h2>
+                    <p><strong>Nota:</strong> ${data.rating}</p>
+                    <p><strong>Elenco:</strong> ${data.cast}</p>
+                    <p><strong>Prêmios:</strong> ${data.awards}</p>`;
+             }
+         })
+         .catch(error => {
+             console.error('Erro:', error);
+             resultado.innerHTML = '<p>Ocorreu um erro ao buscar os dados.</p>';
+         });
+      }
     </script>
 
 </body>

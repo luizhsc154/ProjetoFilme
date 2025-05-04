@@ -23,7 +23,6 @@ def init_db():
     conn.commit()
     conn.close()
 
-
 init_db()
 
 @app.route('/')
@@ -36,12 +35,13 @@ def buscar_filme():
     if not title:
         return jsonify({'error': 'Título não informado'}), 400
 
+    title_clean = title.strip().lower()
     conn = get_db_connection()
-    movie = conn.execute('SELECT * FROM movies WHERE title = ?', (title,)).fetchone()
+    movie = conn.execute('SELECT * FROM movies WHERE title = ?', (title_clean,)).fetchone()
 
     if movie:
         resultado = {
-            'title': movie['title'],
+            'title': movie['title'].title(),  
             'rating': movie['rating'],
             'cast': movie['cast'],
             'awards': movie['awards']
@@ -49,7 +49,6 @@ def buscar_filme():
         conn.close()
         return jsonify(resultado)
 
-    
     omdb_url = f"http://www.omdbapi.com/?t={title}&apikey={OMDB_API_KEY}"
     response = requests.get(omdb_url)
     data = response.json()
@@ -62,13 +61,19 @@ def buscar_filme():
     cast = data.get('Actors', 'N/A')
     awards = data.get('Awards', 'N/A')
 
-    
-    conn.execute('INSERT INTO movies (title, rating, cast, awards) VALUES (?, ?, ?, ?)',
-                 (title, rating, cast, awards))
+    conn.execute(
+        'INSERT INTO movies (title, rating, cast, awards) VALUES (?, ?, ?, ?)',
+        (title_clean, rating, cast, awards)
+    )
     conn.commit()
     conn.close()
 
-    return jsonify({'title': title, 'rating': rating, 'cast': cast, 'awards': awards})
+    return jsonify({
+        'title': data.get('Title', title).strip(),
+        'rating': rating,
+        'cast': cast,
+        'awards': awards
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)

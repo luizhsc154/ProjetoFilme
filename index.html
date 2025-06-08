@@ -94,7 +94,7 @@
          fetch('/buscar-filme?title=' + encodeURIComponent(title))
          .then(response => response.json())
          .then(data => {
-             resultado.innerHTML = ''; // Limpa resultados anteriores
+             resultado.innerHTML = ''; 
 
              if (data.error) {
                  resultado.innerHTML = `<p>${data.error}</p>`;

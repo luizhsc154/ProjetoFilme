@@ -12,17 +12,18 @@ def get_db_connection():
 
 def init_db():
     conn = get_db_connection()
+    
     conn.execute('''
         CREATE TABLE IF NOT EXISTS movies (
             title TEXT PRIMARY KEY,
             rating TEXT,
             cast TEXT,
-            awards TEXT
+            awards TEXT,
+            poster TEXT
         )
     ''')
     conn.commit()
     conn.close()
-    
 
 init_db()
 
@@ -45,7 +46,8 @@ def buscar_filme():
             'title': movie['title'].title(),  
             'rating': movie['rating'],
             'cast': movie['cast'],
-            'awards': movie['awards']
+            'awards': movie['awards'],
+            'poster': movie['poster'] 
         }
         conn.close()
         return jsonify(resultado)
@@ -61,19 +63,23 @@ def buscar_filme():
     rating = data.get('imdbRating', 'N/A')
     cast = data.get('Actors', 'N/A')
     awards = data.get('Awards', 'N/A')
+    poster = data.get('Poster', 'N/A') 
 
+  
     conn.execute(
-        'INSERT INTO movies (title, rating, cast, awards) VALUES (?, ?, ?, ?)',
-        (title_clean, rating, cast, awards)
+        'INSERT INTO movies (title, rating, cast, awards, poster) VALUES (?, ?, ?, ?, ?)',
+        (title_clean, rating, cast, awards, poster)
     )
     conn.commit()
     conn.close()
 
+    # Retorna o JSON com os dados completos
     return jsonify({
         'title': data.get('Title', title).strip(),
         'rating': rating,
         'cast': cast,
-        'awards': awards
+        'awards': awards,
+        'poster': poster
     })
 
 if __name__ == '__main__':
